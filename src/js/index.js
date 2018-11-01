@@ -2,28 +2,49 @@
 
 // global app controller
 
-// npm modules don't need a path :)
-import axios from 'axios';
+// imports
+import Search from './models/Search';
+import * as searchView from './views/searchView';
+import { elements } from './views/base';
 
-async function getResults(query) {
 
-	const apiKey 		= '4d87aeb6e329c19b56e2705484cbef8a';
-	const searchStr = 'https://www.food2fork.com/api/search';
-	const cors 			= 'https://cors-anywhere.herokuapp.com/';
+// global app state:
+// - search obj
+// - current recipe
+// - shopping list obj
+// - favorite recipes
 
-	try {
+const state = {};
 
-		const result = await axios(`${cors}${searchStr}?key=${apiKey}&q=${query}`)
-		console.log(result.data.recipes[0].title);
+// note this async syntax
+const controlSearch = async () => {
 
-	} catch(err) {
-		alert(err);
+	// get the query from view
+	const query = searchView.getInput();
+
+	// create search obj
+	if (query) {
+		// add search obj to state
+		state.search = new Search(query);
+
+		// prepare the UI
+		searchView.clearInput();
+		searchView.clearResults();
+
+		// search for recipes - note await method
+		await state.search.getResults();
+
+		// render results
+		searchView.renderResults( state.search.recipes );
+
 	}
 
-}
+};
 
-
-getResults('spaghetti');
+document.querySelector( '.search' ).addEventListener( 'submit', event => {
+	event.preventDefault();
+	controlSearch();
+});
 
 
 
