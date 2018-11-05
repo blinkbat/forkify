@@ -5,7 +5,7 @@
 // imports
 import Search from './models/Search';
 import * as searchView from './views/searchView';
-import { elements } from './views/base';
+import { elements, renderLoader, clearLoader } from './views/base';
 
 
 // global app state:
@@ -16,6 +16,8 @@ import { elements } from './views/base';
 
 const state = {};
 
+
+
 // note this async syntax
 const controlSearch = async () => {
 
@@ -25,21 +27,27 @@ const controlSearch = async () => {
 	// create search obj
 	if (query) {
 		// add search obj to state
-		state.search = new Search(query);
+		state.search = new Search( query );
 
 		// prepare the UI
 		searchView.clearInput();
 		searchView.clearResults();
 
+		renderLoader( elements.searchRes );
+
+
 		// search for recipes - note await method
 		await state.search.getResults();
 
 		// render results
+		clearLoader();
 		searchView.renderResults( state.search.recipes );
 
 	}
 
 };
+
+
 
 document.querySelector( '.search' ).addEventListener( 'submit', event => {
 	event.preventDefault();
@@ -48,6 +56,20 @@ document.querySelector( '.search' ).addEventListener( 'submit', event => {
 
 
 
+// event delegation for pagination
+elements.searchResPages.addEventListener( 'click', event => {
+
+	// target closest relative w/ given class
+	const button = event.target.closest( '.btn-inline' );
+
+	if (button) {
+		// convert dataset.goto to int base10
+		const goToPage = parseInt( button.dataset.goto, 10 );
+		searchView.clearResults();
+		searchView.renderResults( state.search.recipes, goToPage );
+	}
+
+});
 
 
 /*
