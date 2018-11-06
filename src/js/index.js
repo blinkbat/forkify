@@ -4,6 +4,7 @@
 
 // imports
 import Search from './models/Search';
+import Recipe from './models/Recipe';
 import * as searchView from './views/searchView';
 import { elements, renderLoader, clearLoader } from './views/base';
 
@@ -17,44 +18,50 @@ import { elements, renderLoader, clearLoader } from './views/base';
 const state = {};
 
 
+/**************************************************/
+// SEARCH CONTROLLER
+/**************************************************/
 
 // note this async syntax
 const controlSearch = async () => {
 
-	// get the query from view
-	const query = searchView.getInput();
+		// get the query from view
+		const query = searchView.getInput();
 
-	// create search obj
-	if (query) {
-		// add search obj to state
-		state.search = new Search( query );
+		// create search obj
+		if (query) {
+			// add search obj to state
+			state.search = new Search( query );
 
-		// prepare the UI
-		searchView.clearInput();
-		searchView.clearResults();
+			// prepare the UI
+			//searchView.clearInput();
+			searchView.clearResults();
 
-		renderLoader( elements.searchRes );
+			renderLoader( elements.searchRes );
 
+			try {
+				// search for recipes - note await method
+				await state.search.getResults();
 
-		// search for recipes - note await method
-		await state.search.getResults();
+				// render results
+				clearLoader();
+				searchView.renderResults( state.search.recipes );
 
-		// render results
-		clearLoader();
-		searchView.renderResults( state.search.recipes );
+			} catch (err) {
+				clearLoader(); 
+				console.log( err );
+				alert("Error processing search. :'(");
+			}
 
-	}
+		}
 
 };
 
-
-
+// control submit functionality for search
 document.querySelector( '.search' ).addEventListener( 'submit', event => {
 	event.preventDefault();
 	controlSearch();
 });
-
-
 
 // event delegation for pagination
 elements.searchResPages.addEventListener( 'click', event => {
@@ -70,6 +77,62 @@ elements.searchResPages.addEventListener( 'click', event => {
 	}
 
 });
+
+
+
+/**************************************************/
+// RECIPE CONTROLLER
+/**************************************************/
+
+// note async syntax
+const controlRecipe = async () => {
+
+		// pull only the hash str, replace hash with null
+		// using hash is good for single page apps!!!
+		const id = window.location.hash.replace( '#', '' );
+
+		if (id) {
+
+			// prepare UI for changes
+
+
+			// create new recipe obj
+			state.recipe = new Recipe( id );
+
+			try {
+				// get recipe data
+				await state.recipe.getRecipe();
+
+				// calcTime and calcServings
+				state.recipe.calcTime();
+				state.recipe.calcServings();
+
+				// parse ingredients
+				state.recipe.parseIngredients();
+
+				// render the recipe
+				console.log( state.recipe );
+
+			} catch (err) {
+				console.log( err );
+				alert("Error processing recipe. :'(");
+			}
+
+		}
+
+}
+
+
+
+// use hashchange listener to find #id in url bar
+// use pageload listener for recipe bookmarking
+const windowEvents = [ 'hashchange', 'load' ];
+// cycle thru events to attach listeners
+windowEvents.forEach( event => window.addEventListener( event, controlRecipe ) );
+
+
+
+
 
 
 /*
