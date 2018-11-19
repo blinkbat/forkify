@@ -15,6 +15,16 @@ export const clearResults = () => {
 	elements.searchResPages.innerHTML = ''; 
 };
 
+export const highlightSelected = id => {
+
+	// create arr of all results, remove active class from all
+	const resultsArr = Array.from( document.querySelectorAll('.results__link') );
+	resultsArr.forEach( item => {
+		item.classList.remove( 'results__link--active' );
+	});
+
+	document.querySelector( `a[href*="#${id}"]` ).classList.add( 'results__link--active' );
+};
 
 
 const limitRecipeTitle = (title, limit = 17) => {

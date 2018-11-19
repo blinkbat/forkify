@@ -61,7 +61,7 @@ export default class Recipe {
 													];
 
 			// take unitsShort out of nested arr, import
-			const units = [ ...unitsShort, kg, g ];
+			const units = [ ...unitsShort, 'kg', 'g' ];
 
 			const newIngredients = this.ingredients.map( item => {
 
@@ -130,6 +130,24 @@ export default class Recipe {
 			});
 
 			this.ingredients = newIngredients;
+
+		}
+
+		updateServings( type ) {
+
+			// servings
+			// if type is decrease, servings - 1, else + 1
+			const newServings = type === 'dec' ? this.servings - 1 : this.servings + 1;
+
+			// ingredients
+			this.ingredients.forEach( ingredient => {
+
+				// use multiply operator
+				ingredient.count *= ( newServings / this.servings );
+
+			});
+
+			this.servings = newServings;
 
 		} 
 
