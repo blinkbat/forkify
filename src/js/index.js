@@ -25,7 +25,7 @@ import { elements, renderLoader, clearLoader } from './views/base';
 const state = {};
 
 // testing purposes
-window.state = state;
+// window.state = state;
 
 
 /**************************************************/
@@ -196,9 +196,6 @@ elements.shopping.addEventListener( 'click', event => {
 // LIKES CONTROLLER
 /**************************************************/
 
-// testing
-state.likes = new Likes(); 
-
 
 
 const controlLikes = () => {
@@ -208,6 +205,8 @@ const controlLikes = () => {
 
 	// assign current id from current recipe
 	const currentID = state.recipe.id;
+
+	//console.log("Recipe ID: " + currentID );
 
 	// if user has not liked current recipe
 	if ( !state.likes.isLiked( currentID ) ) {
@@ -219,12 +218,15 @@ const controlLikes = () => {
 			state.recipe.image
 		);
 
+		//console.log("New like added: ");
+		//console.log( state.likes );
+		//console.log( newLike );
+
 		// toggle like button
 		likesView.toggleLikeBtn( true );
 
 		// add like to UI list
-		console.log( state.likes );
-
+		likesView.renderLike( newLike );
 
 	// if user HAS liked current recipe
 	} else {
@@ -235,12 +237,31 @@ const controlLikes = () => {
 		likesView.toggleLikeBtn( false );
 
 		// remove from UI
-		console.log( state.likes );
+		likesView.deleteLike( currentID );
 
 	}
 
-}
+	likesView.toggleLikesMenu( state.likes.getNumLikes() );
 
+};
+
+
+// restore likes from localStorage on pageload
+window.addEventListener( 'load', () => {
+
+	// init
+	state.likes = new Likes();
+
+	// restore likes
+	state.likes.readStorage();
+
+	// toggle btn
+	likesView.toggleLikesMenu( state.likes.getNumLikes() );
+
+	// render extant likes
+	state.likes.likes.forEach( like => likesView.renderLike( like ) );
+
+});
 
 
 
@@ -279,12 +300,13 @@ elements.recipe.addEventListener( 'click', event => {
 
 	}
 
-	console.log( state.recipe );
+	//console.log( state.recipe );
 
 });
 
 
-window.l = new List();
+// testing
+//window.l = new List();
 
 
 

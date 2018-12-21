@@ -13,21 +13,24 @@ const formatCount = count => {
 
 		// count 2.5 -> 2 1/2, 0.5 -> 1/2, etc
 
+		// round to four decimal places. weird
+		const newCount = Math.round( count * 10000 ) / 10000;
+
 		// split str into array by decimal pt, then reassemble as numbers
-		const [int, dec] = count.toString().split('.').map( item => parseInt( item, 10 ) );
+		const [int, dec] = newCount.toString().split('.').map( item => parseInt( item, 10 ) );
 
 		// if no decimal, don't bother
-		if (!dec) return count;
+		if (!dec) return newCount;
 
 		// if no int...
 		if (int === 0) {
 			// create new Fraction based on count
-			const frac = new Fraction( count );
+			const frac = new Fraction( newCount );
 			return `${frac.numerator}/${frac.denominator}`;
 
 		} else {
 			// create legible Fraction from weird count (5/2, etc)
-			const frac = new Fraction( count - int );
+			const frac = new Fraction( newCount - int );
 			return `${int} ${frac.numerator}/${frac.denominator}`;
 
 		}
